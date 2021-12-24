@@ -1,6 +1,6 @@
 from django.forms import modelformset_factory
 from django.urls import reverse_lazy
-from django.views.generic import DetailView, CreateView, ListView, UpdateView, DeleteView
+from django.views.generic import DetailView, CreateView, ListView, UpdateView, DeleteView, TemplateView
 from django.views import View
 
 from django.shortcuts import render, redirect
@@ -25,6 +25,8 @@ class ProductsListView(ListView):
     queryset = Product.objects.all()
     template_name = 'product/products_list.html'
     context_object_name = 'products'
+    paginate_by = 6
+
 
 
 class ProductDetailsView(DetailView):
@@ -35,8 +37,13 @@ class ProductDetailsView(DetailView):
 
 ImagesFormSet = modelformset_factory(ProductImage, form=ProductImageForm, extra=3, max_num=5, can_delete=True)
 
+class IsAdminMixin(UserPassesTestMixin):
+    def test_func(self):
+        user = self.request.user
+        return user.is_authenticated and user.is_staff
 
-class CreateProductView(CreateView):
+# TODO: созданиеб редактироваение и удаление могут видеть только администраторы
+class CreateProductView(IsAdminMixin, CreateView):
     queryset = Product.objects.all()
     template_name = 'product/create_product.html'
     form_class = ProductForm
@@ -53,24 +60,29 @@ class CreateProductView(CreateView):
         return self.form_invalid(form)
 
 
-class UpdateProductView(UpdateView):
+class UpdateProductView(IsAdminMixin, UpdateView):
     queryset = Product.objects.all()
     form_class = ProductForm
     template_name = 'product/update_product.html'
     context_object_name = 'product'
 
 
-class DeleteProductView(DeleteView):
+class DeleteProductView(IsAdminMixin, DeleteView):
     queryset = Product.objects.all()
     template_name = 'product/delete_product.html'
     success_url = reverse_lazy('product-list')
 
 
+class IndexPageView(TemplateView):
+    template_name = 'product/index.html'
+
+
+#TODO: закончить с версткой
 
 # CRUD(create, retrieve, update, delete)
 
 # MVC(Model-View-Controller)
 
 # Model        (models)
-# View         (template)
+# View         (templates)
 # Controler    (view)

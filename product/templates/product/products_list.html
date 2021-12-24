@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Список продуктов</title>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block body %}
     <h1>Список продуктов</h1>
     {% for prod in products %}
     <p>
@@ -12,5 +8,4 @@
         {{ prod.price }}
     </p>
     {% endfor %}
-</body>
-</html>
+  {% endblock body %}
